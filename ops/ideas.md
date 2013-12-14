@@ -1,6 +1,6 @@
- # How to obtain social crowdsoursing data #
+# How to obtain social crowdsoursing data #
 
-- Use Twitter + PhantomJs
+- Use Twitter + PhantomJs?
 
 - crowdsours site = {startsomegood, indigogo,  kickstarter}
 
@@ -10,7 +10,7 @@
 
 - ex to get twitter profile by profile id: https://twitter.com/account/redirect_by_id?id={ profile id}
 
-#grab data-user-id values from below links
+# grab data-user-id values from below links #
 - ex to get retweet activity for tweet of interest: https://twitter.com/i/activity/retweeted_popup?id={tweet id}
 - ex to get favorited activity for tweet of interest: https://twitter.com/i/activity/favorited_popup?id={tweet id}
 
