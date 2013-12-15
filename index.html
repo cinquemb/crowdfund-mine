@@ -31,7 +31,7 @@
           <h2>
 <a name="mining-social-media-data-in-context-of-crowdfunding-data---part-1-social-side" class="anchor" href="#mining-social-media-data-in-context-of-crowdfunding-data---part-1-social-side"><span class="octicon octicon-link"></span></a>Mining Social Media Data In Context of Crowdfunding Data - Part 1: Social Side</h2>
 
-<p>Trying to figure out the effectiveness of one’s efforts for fundraising can be a pretty arduous task (so I'm told), especially if one is not equipped with the mindset of what would be a way to measure such.</p>
+<p>Trying to figure out the effectiveness of one’s efforts for fundraising can be a pretty arduous task online(so I'm told), especially if one is not equipped with the mindset of what would be a way to measure such. Not only that, analyzing datasets like these can help individuals and organizations identify exactly who is their audience, who in their audience has the most potential for helping launch/sustain/grow campaigns, and see how these things can change over the lifetime of one or more campaigns.</p>
 
 <h3>
 <a name="the-challenge" class="anchor" href="#the-challenge"><span class="octicon octicon-link"></span></a>The Challenge</h3>
@@ -71,9 +71,11 @@
 2) $ cd ../path/to/crowdfund-mine/
 3) $ virtualenv env --distribute
 4) $ source env/bin/activate
-5) $ pip install -r ops/requirements.txt
-6) Edit line 25 in social-mine.py to your choosing for queries that are of interest to you in respect to this topic as of now it is set to: crowdsource_site_list = ['startsomegood', 'indigogo', 'kickstarter']
-7) $ python social-mine.py
+5) $ mkdir mined_data
+6) $ mkdir final_mined_data
+7) $ pip install -r ops/requirements.txt
+8) Edit line 25 in social-mine.py to your choosing for queries that are of interest to you in respect to this topic as of now it is set to: crowdsource_site_list = ['startsomegood', 'indigogo', 'kickstarter']
+9) $ python social-mine.py
 </code></pre>
 
 <p>Last command will generate a <code>json</code> file in <code>mined_data/</code> directory, where you can do what you want with it.
