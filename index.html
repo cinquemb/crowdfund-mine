@@ -28,15 +28,18 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h2>
-<a name="mining-social-media-data-in-context-of-crowdfunding-data---part-1-social-side" class="anchor" href="#mining-social-media-data-in-context-of-crowdfunding-data---part-1-social-side"><span class="octicon octicon-link"></span></a>Mining Social Media Data In Context of Crowdfunding Data - Part 1: Social Side</h2>
+          <h1>
+<a name="mining-social-media-data-in-context-of-crowdfunding-data" class="anchor" href="#mining-social-media-data-in-context-of-crowdfunding-data"><span class="octicon octicon-link"></span></a>Mining Social Media Data In Context of Crowdfunding Data</h1>
 
-<p>Trying to figure out the effectiveness of one’s efforts for fundraising can be a pretty arduous task online(so I'm told), especially if one is not equipped with the mindset of what would be a way to measure such. Not only that, analyzing datasets like these can help individuals and organizations identify exactly who is their audience, who in their audience has the most potential for helping launch/sustain/grow campaigns, and see how these things can change over the lifetime of one or more campaigns.</p>
+<h2>
+<a name="--part-1-social-side" class="anchor" href="#--part-1-social-side"><span class="octicon octicon-link"></span></a>- Part 1: Social Side</h2>
+
+<p>Trying to figure out the effectiveness of one’s efforts for fundraising can be a pretty arduous task online (so I'm told), especially if one is not equipped with the mindset of what would be a way to measure such. Not only that, analyzing datasets like these can help individuals and organizations identify exactly who is their audience, who in their audience has the most potential for helping launch/sustain/grow campaigns, and see how these things can change over the lifetime of one or more campaigns.</p>
 
 <h3>
 <a name="the-challenge" class="anchor" href="#the-challenge"><span class="octicon octicon-link"></span></a>The Challenge</h3>
 
-<p>This challenge came to me from a cousin of mine who works for a non-profit in Houston, TX (<a href="http://iamforgood.org/">Neighborhood Centers Inc</a>) where he was wondering if it was possible to be able to measure how effective any crowdfunding campaign could be in general, over time. One of the modern hallmarks of crowdfunding is to usually rely on sites like kickstarter and indigogo, so I knew where I would start.</p>
+<p>This challenge came to me from a cousin (Naji Barnes-McFarlane) of mine who works for a non-profit in Houston, TX (<a href="http://iamforgood.org/">Neighborhood Centers Inc</a>) where he was wondering if it was possible to be able to measure how effective any crowdfunding campaign could be in general, over time. One of the modern hallmarks of crowdfunding is to usually rely on sites like kickstarter and indiegogo, so I knew where I would start. For some examples of non profits raising money through crowdfunding online, you can check out <a href="http://www.indiegogo.com/projects?filter_nonprofit=nonprofit&amp;filter_quick=popular_all">indiegogo's</a> list. If non-profit individuals and organizations had a tool at their disposal to help their efforts, not only will they benefit from being able to focus their efforts, but their audience will as well.</p>
 
 <h3>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h3>
@@ -65,7 +68,7 @@
 <h3>
 <a name="how-to-mine-for-yourself" class="anchor" href="#how-to-mine-for-yourself"><span class="octicon octicon-link"></span></a>How To Mine For Yourself</h3>
 
-<p>I'm doing this in python using virtualenv, but this can be done in any language of your choosing. Here are my steps:</p>
+<p>I'm doing this in python using <a href="http://www.virtualenv.org/en/latest/">virtualenv</a>, but this can be done in any language of your choosing. Here are my steps:</p>
 
 <pre><code>1) $ git clone https://github.com/cinquemb/crowdfund-mine.git
 2) $ cd ../path/to/crowdfund-mine/
@@ -74,7 +77,7 @@
 5) $ mkdir mined_data
 6) $ mkdir final_mined_data
 7) $ pip install -r ops/requirements.txt
-8) Edit line 25 in social-mine.py to your choosing for queries that are of interest to you in respect to this topic as of now it is set to: crowdsource_site_list = ['startsomegood', 'indigogo', 'kickstarter']
+8) Edit line 25 in social-mine.py to your choosing for queries that are of interest to you in respect to this topic as of now it is set to: crowdsource_site_list = ['startsomegood', 'indiegogo', 'kickstarter']
 9) $ python social-mine.py
 </code></pre>
 
@@ -123,6 +126,11 @@ The data in the generated files will look something like below for every tweet:<
 </code></pre>
 
 <p>This command has taken me anywhere from 44s to 57s to run (duration is printed at end of script), and can be run on an interval of your choosing (with something like cron).</p>
+
+<h3>
+<a name="take-away" class="anchor" href="#take-away"><span class="octicon octicon-link"></span></a>Take Away</h3>
+
+<p>My main goal for Part 1 was to simply find and retrieve relevant (meta)data that would help identify signals to possible campaigns found from within and in the context of the tweets. From the sample mined data from above, I feel that I have successfully accomplished that.</p>
 
 <h3>
 <a name="whats-next" class="anchor" href="#whats-next"><span class="octicon octicon-link"></span></a>What's Next?</h3>
