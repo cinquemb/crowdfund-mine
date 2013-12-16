@@ -22,7 +22,7 @@ mined_data_string = '%s/%s' % (MINED_DATA_DIR,_tmp_file)
 f = open(mined_data_string,"w+")
 #print mined_data_string
 
-crowdsource_site_list = ['startsomegood', 'indigogo', 'kickstarter']
+crowdsource_site_list = ['startsomegood', 'indiegogo', 'kickstarter']
 
 def is_number(s):
     try:
@@ -153,6 +153,8 @@ def save_filter_dict(itr_zip, csl):
 
 	return twitter_ids
 
+
+timeline_data_nodes = []
 for c_s_l in crowdsource_site_list:
 	# abstract into timeline function
 	val = 'https://twitter.com/i/search/timeline?q=%s&composed_count=1&include_available_features=1&include_entities=1&include_new_items_bar=true&interval=1&f=realtime' % (c_s_l)
@@ -160,7 +162,13 @@ for c_s_l in crowdsource_site_list:
 	sleep(.35)
 	data = r.text
 	del r
-	data1 = simplejson.loads(data)
+	temp_data = [data,c_s_l]
+	timeline_data_nodes.append(temp_data)
+
+for node in timeline_data_nodes:
+	dump = node[0]
+	source = node[1]
+	data1 = simplejson.loads(dump)
 	for key, value in data1.iteritems():
 		#metadata in tweet stream
 		if key == 'items_html':
@@ -201,7 +209,7 @@ for c_s_l in crowdsource_site_list:
 
 				for url in urls_list:
 					matches = [t_url for t_url in testing_nodes if url_comparison(t_url, url)]
-					urls_to_crawl += '%s,' % (matches)
+					urls_to_crawl += '%s,' % (matches[0])
 				
 				if len(urls_to_crawl) > 2:
 					nodes_tweets.append(urls_to_crawl)
@@ -221,10 +229,10 @@ for c_s_l in crowdsource_site_list:
 						userid_nodes.append(value)
 
 			tweet_ziped = zip(userid_nodes, timestamps, tweet_id_in_order, nodes_tweets)
-			ids = save_filter_dict(tweet_ziped, c_s_l)
+			ids = save_filter_dict(tweet_ziped, source)
 			#pprint.pprint(ids)
 f.close()
 
 end = time.time()
 duration = end - init
-print 'Duration:', duration , '\n'
+print 'Duration for social data mining:', duration , '\n'
