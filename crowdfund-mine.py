@@ -20,17 +20,17 @@ from bs4 import BeautifulSoup
 
 init = time.time()
 requests.adapters.DEFAULT_RETRIES = 10
-requests.adapters.DEFAULT_RETRIES = 10
 
 _tmp_file = '%s.json' % (init)
 URL_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../social-non-profit-data'))
-
-#uncomment for later tests
+FUND_MINED_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'fund_mined_data'))
+fund_mined_data_string = '%s/%s' % (FUND_MINED_DATA_PATH,_tmp_file)
 
 f_tweet = open("final_mined_data/0.json","r+")
 
 data = simplejson.load(f_tweet)
-max_tweets = len(data['data'])
+max_tweets = len(data['data_tweets'])
+#print max_tweets
 
 
 crowdsource_site_list = ['startsomegood', 'indiegogo', 'kickstarter']
@@ -41,28 +41,51 @@ def crowd_fund_comparison(title,site):
 	else:
 		return False
 
+#super hacky
+def url_check(url,string):
+	if url.find(string) is not -1:
+		return True
+	else:
+		return False
+
 def check_crowd_fund_url(urls):
 	'''
 		Follow urls from within tweet and return url and site and status (if url is for crowdfunding) for each url 
 	'''
 	c_c_f_u_list = [] 
 	for url in urls:
-		c_c_f_u_node = [] #0:soup,1:site,2:status(true or false),3:time
-		r = requests.get(url, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
-		scrape_time = time.time()
-		sleep(.35)
-		data = r.text
-		soup = BeautifulSoup(data)
-		_title = soup.title.string.lower()
+		if len(url) > 5:
+			c_c_f_u_node = [] #0:soup,1:site,2:status(true or false),3:time
+			if url_check(url, '/posts/') and url_check(url, 'kickstarter'):
+				url_temp = re.split('/posts/', url)
+				print 'Url Hack Used'
+				url = url_temp[0]
+			r = requests.get(url, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
+			scrape_time = time.time()
+			sleep(.25)
+			data = r.text
+			soup = BeautifulSoup(data)
+			goal =  soup.find_all('meta',attrs={"property": "og:site_name"})
+			_title_row = []
+			for go in goal:
+				#print go['content']
+				_title_row.append(go['content'].encode("utf-8").lower())
+				break
+			
 
-		matches = [site for site in crowd_fund_comparison if crowd_fund_comparison(_title, site)]
-		if matches:
-			temp_match_list = [soup, matches[0], True, scrape_time]
-			c_c_f_u_node.append(temp_match_list)
-		else:
-			temp_match_list = [soup, matches[0], False, scrape_time]
-			c_c_f_u_node.append()
-		c_c_f_u_list.append(c_c_f_u_node)
+			if len(_title_row) > 0:
+				_title = _title_row[0]
+				matches = [site for site in crowdsource_site_list if crowd_fund_comparison(_title, site)]
+				if matches:
+					temp_match_list = [soup, matches[0], True, scrape_time]
+					c_c_f_u_node.append(temp_match_list)
+				else:
+					temp_match_list = [soup, False, False, scrape_time]
+					c_c_f_u_node.append(temp_match_list)
+
+				c_c_f_u_list.append(c_c_f_u_node)
+			else:
+				continue
 
 	return c_c_f_u_list
 
@@ -155,13 +178,14 @@ def parse_kickstarter(html_soup):
 		go = re.split(' ',go['content'].encode("utf-8"))
 		kickstarter_val_list.append(go[2])
 		break
-	#raised 
-	raised = html_soup.find_all('data',attrs={"class": "Project301281478","itemprop": "Project[pledged]"})
+	#raised
+	data_val = re.compile("^Project?[0-9]+$")
+	raised = html_soup.find_all('data',attrs={"class": data_val,"itemprop": "Project[pledged]"})
 	for rai in raised:
 		kickstarter_val_list.append(rai.text.encode("utf-8"))
 		break
 	#backers (count total to get contributors)
-	backers = html_soup.find_all('data',attrs={"class": "Project301281478","itemprop": "Project[backers_count]"})
+	backers = html_soup.find_all('data',attrs={"class": data_val,"itemprop": "Project[backers_count]"})
 	for back in backers:
 		kickstarter_val_list.append(back.text)
 		break
@@ -183,20 +207,22 @@ def parse_crowdfund_site(tweet_node):
 		twitter status ID
 	'''
 	p_c_s_d_list = []
-	json_data = simplejson.loads(tweet_node)
+	json_data = tweet_node
 	_urls = re.split(',', json_data['urls'])
 	checked_data = check_crowd_fund_url(_urls)
 	for node in checked_data:
-		if node[2] is True:
-			if node[1] == 'startsomegood':
-				return_data_node = parse_startsomegood(node[0])
-				p_c_s_d_list.append([json_data, return_data_node, node[3]])
-			elif node[1] == 'indiegogo':
-				return_data_node = parse_indiegogo(node[0])
-				p_c_s_d_list.append([json_data, return_data_node, node[3]])
-			elif node[1] == 'kickstarter':
-				return_data_node = parse_kickstarter(node[0])
-				p_c_s_d_list.append([json_data, return_data_node, node[3]])
+		#print len(node[0])
+		#pprint.pprint(node)
+		if node[0][2] is True:
+			if node[0][1] == 'startsomegood':
+				return_data_node = parse_startsomegood(node[0][0])
+				p_c_s_d_list.append([json_data, return_data_node, node[0][3]])
+			elif node[0][1] == 'indiegogo':
+				return_data_node = parse_indiegogo(node[0][0])
+				p_c_s_d_list.append([json_data, return_data_node, node[0][3]])
+			elif node[0][1] == 'kickstarter':
+				return_data_node = parse_kickstarter(node[0][0])
+				p_c_s_d_list.append([json_data, return_data_node, node[0][3]])
 
 	return p_c_s_d_list
 def update_crowdfund_data(p_c_s_d):
@@ -204,25 +230,42 @@ def update_crowdfund_data(p_c_s_d):
 		grabs any previous data from files assocaited with previous p_c_s_d nodes returned, 
 		and creates a new file with updated data (merge lists)
 	'''
-
+	u_c_d_nodes = []
 	for p_node in p_c_s_d:
-		temp_node_pre =  '{"goal_amount": "%s", "raised_amount": "%s", "total_backers": %s, "days_left": %s, "time_parsed": %s}' % (p_node[1][0].encode("utf-8"), p_node[1][1].encode("utf-8"), p_node[1][2], p_node[1][3], p_node[2])
+		#pprint.pprint(p_node)
+		#figure out how to differentiate between hours/days
+		#temp_node_pre =  '{"goal_amount": "%s", "raised_amount": "%s", "total_backers": %s, "days_or_hours_left": %d, "time_parsed": "%f"}' % (p_node[1][0], p_node[1][1], p_node[1][2], int(p_node[1][3]), float(p_node[2]))
+		temp_node_dict =  {'goal_amount': p_node[1][0], 
+			'raised_amount': p_node[1][1], 
+			'total_backers': p_node[1][2], 
+			'days_or_hours_left': int(p_node[1][3]), 
+			'time_parsed': float(p_node[2])
+		} 
 
-		temp_node_sum = p_node[0] + simplejson.loads(temp_node_pre)
-		pprint.pprint(temp_node_sum)
+		temp_node_sum = p_node[0].copy()
+		temp_node_sum.update(temp_node_dict)
+		u_c_d_nodes.append(simplejson.dumps(temp_node_sum))
+
+	return u_c_d_nodes
 
 def save_crowdfund_data(u_c_d):
 	'''
 		create json data for node, and write to file
 	'''
-	pass
+	f_m = open(fund_mined_data_string,"w+")
+	for node in u_c_d:
+		f_m.write('%s,' % node)
+	f_m.close()	
 
 for i in range(0,max_tweets):
-	tweet_node = data['data'][i]
+	tweet_node = data['data_tweets'][i]
+	#print tweet_node
+	#break
 	p_c_s_d_list = parse_crowdfund_site(tweet_node)
-	update_crowdfund_data(p_c_s_d_list)
+	u_c_d_nodes = update_crowdfund_data(p_c_s_d_list)
+	save_crowdfund_data(u_c_d_nodes)
 
 
 end = time.time()
 duration = end - init
-print 'Duration for crowdfund data mining of ', html_file ,':', duration , '\n'
+print 'Duration for crowdfund data mining:', duration , '\n'
