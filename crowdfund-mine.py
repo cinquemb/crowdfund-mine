@@ -46,45 +46,56 @@ def url_check(url,string):
 	else:
 		return False
 
+
+
 def check_crowd_fund_url(urls):
 	'''
 		Follow urls from within tweet and return url and site and status (if url is for crowdfunding) for each url 
 	'''
 	c_c_f_u_list = [] 
 	for url in urls:
-		if len(url) > 5:
-			c_c_f_u_node = [] #0:soup,1:site,2:status(true or false),3:time
-			if url_check(url, '/posts/') and url_check(url, 'kickstarter'):
-				url_temp = re.split('/posts/', url)
-				print 'Url Hack Used'
-				url = url_temp[0]
-			r = requests.get(url, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
-			scrape_time = time.time()
-			sleep(.25)
-			data = r.text
-			soup = BeautifulSoup(data)
-			goal =  soup.find_all('meta',attrs={"property": "og:site_name"})
-			_title_row = []
-			for go in goal:
-				#print go['content']
-				_title_row.append(go['content'].encode("utf-8").lower())
-				break
-			
+		if url not in check_url_list:
+			if len(url) > 5:
+				url_orig = url
+				c_c_f_u_node = [] #0:soup,1:site,2:status(true or false),3:time
+				if url_check(url, '/posts/') and url_check(url, 'kickstarter'):
+					url_temp = re.split('/posts/', url)
+					print 'Url Hack Used'
+					url = url_temp[0]
+				r = requests.get(url, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=20, verify=False)
+				scrape_time = time.time()
+				sleep(.35)
+				data = r.text
+				soup = BeautifulSoup(data)
+				goal =  soup.find_all('meta',attrs={"property": "og:site_name"})
+				_title_row = []
+				for go in goal:
+					#print go['content']
+					_title_row.append(go['content'].encode("utf-8").lower())
+					break
 
-			if len(_title_row) > 0:
-				_title = _title_row[0]
-				matches = [site for site in crowdsource_site_list if crowd_fund_comparison(_title, site)]
-				if matches:
-					temp_match_list = [soup, matches[0], True, scrape_time]
-					c_c_f_u_node.append(temp_match_list)
+				if len(_title_row) > 0:
+					_title = _title_row[0]
+					matches = [site for site in crowdsource_site_list if crowd_fund_comparison(_title, site)]
+
+					if matches:
+						temp_match_list = [soup, matches[0], True, scrape_time]
+						c_c_f_u_node.append(temp_match_list)
+						check_url_list.append(url_orig)
+						cache_temp_list.append(temp_match_list)
+					else:
+						temp_match_list = [soup, False, False, scrape_time]
+						c_c_f_u_node.append(temp_match_list)
+						check_url_list.append(url_orig)
+						cache_temp_list.append(temp_match_list)
+					
+					c_c_f_u_list.append(c_c_f_u_node)
 				else:
-					temp_match_list = [soup, False, False, scrape_time]
-					c_c_f_u_node.append(temp_match_list)
-
-				c_c_f_u_list.append(c_c_f_u_node)
-			else:
-				continue
-
+					continue
+		else:
+			url_cached = [i for i,x in enumerate(check_url_list) if x == url]
+			#print 'Get Cached Data for Url At Index:', url_cached[0]
+			c_c_f_u_list.append([cache_temp_list[url_cached[0]]])
 	return c_c_f_u_list
 
 def parse_startsomegood(html_soup):
@@ -116,8 +127,6 @@ def parse_startsomegood(html_soup):
 	'''
 	for data_node in startsomegood_list:
 		data_node_val_filt = data_node.text.replace(' ','').replace('\n','')
-		#number_list = test.find_all('span',attrs={"class": 'num'})
-		#pprint.pprint(test_1)
 		startsomegood_val_list.append(data_node_val_filt)
 
 	# to may length of 4
@@ -187,8 +196,6 @@ def parse_kickstarter(html_soup):
 	for back in backers:
 		kickstarter_val_list.append(back.text)
 		break
-	#pprint.pprint(testing)
-	#testing = soup.find_all('span',attrs={"class": 'num'})
 	#days left
 	days_left = html_soup.find_all('meta',attrs={"property": "twitter:data2"})
 	for day in days_left:
@@ -208,8 +215,8 @@ def parse_crowdfund_site(tweet_node):
 	_urls = re.split(',', json_data['urls'])
 	checked_data = check_crowd_fund_url(_urls)
 	for node in checked_data:
-		#print len(node[0])
-		#pprint.pprint(node)
+		print len(node[0])
+		#pprint.pprint(node[0])
 		if node[0][2] is True:
 			if node[0][1] == 'startsomegood':
 				return_data_node = parse_startsomegood(node[0][0])
@@ -237,9 +244,6 @@ def save_crowdfund_data(p_c_s_d):
 	
 	d_nodes = []
 	for p_node in p_c_s_d:
-		#pprint.pprint(p_node)
-		#figure out how to differentiate between hours/days
-		#temp_node_pre =  '{"goal_amount": "%s", "raised_amount": "%s", "total_backers": %s, "days_or_hours_left": %d, "time_parsed": "%f"}' % (p_node[1][0], p_node[1][1], p_node[1][2], int(p_node[1][3]), float(p_node[2]))
 		temp_node_dict =  {'goal_amount': p_node[1][0], 
 			'raised_amount': p_node[1][1], 
 			'total_backers': p_node[1][2], 
@@ -271,6 +275,8 @@ for i in range(0,max_tweets):
 
 max_nodes = len(filtered_tweet_nodes)
 f_m = open(fund_mined_data_string,"w+")
+check_url_list = []
+cache_temp_list = []
 for i in range(0,max_nodes):
 	p_c_s_d_list = parse_crowdfund_site(filtered_tweet_nodes[i])
 	save_crowdfund_data(p_c_s_d_list)
