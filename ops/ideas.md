@@ -33,4 +33,8 @@
 	5) days left
 	6) past data on founder of project?
 
+# comparing differences in data #
+
+maybe preprocess to filter out scraped time stamps and time left in order to see difference in funding amounts and backers
+comm <(sort fund_mined_data/1387307355.86.json) <(sort fund_mined_data/1387314130.91.json)
 
