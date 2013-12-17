@@ -25,5 +25,12 @@
 		b) follower amount/names (how far down the rabit hole/useful?)
 	3) time posted
 
-- scrape {crowsourse site} page with data over time period for how many backers, catergory, how much, time period (start/end time), past data on founder of project?
+- scrape {crowsourse site} page with data over time period for:
+	1) how many backers
+	2) category?
+	3) how much (goal)
+	4) funded so far 
+	5) days left
+	6) past data on founder of project?
+
 

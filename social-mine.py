@@ -212,7 +212,7 @@ for node in timeline_data_nodes:
 					urls_to_crawl += '%s,' % (matches[0])
 				
 				if len(urls_to_crawl) > 2:
-					nodes_tweets.append(urls_to_crawl)
+					nodes_tweets.append(urls_to_crawl.lstrip())
 
 			for node in nodes:
 				data2 = simplejson.dumps(node.attrs)
