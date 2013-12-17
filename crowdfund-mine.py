@@ -30,8 +30,6 @@ f_tweet = open("final_mined_data/0.json","r+")
 
 data = simplejson.load(f_tweet)
 max_tweets = len(data['data_tweets'])
-#print max_tweets
-
 
 crowdsource_site_list = ['startsomegood', 'indiegogo', 'kickstarter']
 
@@ -196,7 +194,6 @@ def parse_kickstarter(html_soup):
 	for day in days_left:
 		kickstarter_val_list.append(day['content'])
 		break
-	
 
 	return kickstarter_val_list
 
@@ -225,12 +222,20 @@ def parse_crowdfund_site(tweet_node):
 				p_c_s_d_list.append([json_data, return_data_node, node[0][3]])
 
 	return p_c_s_d_list
-def update_crowdfund_data(p_c_s_d):
+
+def update_crowdfund_data(d_nodes):
 	'''
-		grabs any previous data from files assocaited with previous p_c_s_d nodes returned, 
+		grabs any previous data from files assocaited with previous d_nodes nodes returned, 
 		and creates a new file with updated data (merge lists)
 	'''
-	u_c_d_nodes = []
+	pass
+
+def save_crowdfund_data(p_c_s_d):
+	'''
+		create json data for node, and write to file
+	'''
+	
+	d_nodes = []
 	for p_node in p_c_s_d:
 		#pprint.pprint(p_node)
 		#figure out how to differentiate between hours/days
@@ -244,28 +249,33 @@ def update_crowdfund_data(p_c_s_d):
 
 		temp_node_sum = p_node[0].copy()
 		temp_node_sum.update(temp_node_dict)
-		u_c_d_nodes.append(simplejson.dumps(temp_node_sum))
+		d_nodes.append(simplejson.dumps(temp_node_sum))
 
-	return u_c_d_nodes
+	
+	for node in d_nodes:
+		f_m.write('%s,' % node)	
 
-def save_crowdfund_data(u_c_d):
-	'''
-		create json data for node, and write to file
-	'''
-	f_m = open(fund_mined_data_string,"w+")
-	for node in u_c_d:
-		f_m.write('%s,' % node)
-	f_m.close()	
+	return d_nodes
 
+filtered_tweet_nodes = []
+filtered_tweet_ids = []
 for i in range(0,max_tweets):
-	tweet_node = data['data_tweets'][i]
-	#print tweet_node
-	#break
-	p_c_s_d_list = parse_crowdfund_site(tweet_node)
-	u_c_d_nodes = update_crowdfund_data(p_c_s_d_list)
-	save_crowdfund_data(u_c_d_nodes)
+	# filter out tweets that are the same?
+	tweet_id = data['data_tweets'][i]['tweet_id']
+	if data['data_tweets'][i]['query'] == 'startsomegood':
+		continue
 
+	if tweet_id not in filtered_tweet_ids:
+		filtered_tweet_nodes.append(data['data_tweets'][i])
+		filtered_tweet_ids.append(tweet_id)
 
+max_nodes = len(filtered_tweet_nodes)
+f_m = open(fund_mined_data_string,"w+")
+for i in range(0,max_nodes):
+	p_c_s_d_list = parse_crowdfund_site(filtered_tweet_nodes[i])
+	save_crowdfund_data(p_c_s_d_list)
+
+f_m.close()
 end = time.time()
 duration = end - init
 print 'Duration for crowdfund data mining:', duration , '\n'

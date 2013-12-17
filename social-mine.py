@@ -86,9 +86,7 @@ def general_print_dict(itr_dict, category):
 			nodes = soup.find_all(data_val)
 			userid_nodes = []
 			for node in nodes:
-				data2 = simplejson.dumps(node.attrs)
-				data2 = simplejson.loads(data2)
-				for key, value in data2.iteritems():
+				for key, value in node.attrs.iteritems():
 					if key == 'data-user-id' and value not in userid_nodes:
 						#temp_node =  '               {"user": %s}\n' % (value)
 						userid_nodes.append(value)
@@ -173,9 +171,6 @@ for node in timeline_data_nodes:
 		#metadata in tweet stream
 		if key == 'items_html':
 			soup = BeautifulSoup(value)
-			#data-tweet-id
-			#"dir": data_val
-			#data-time
 			data_val = re.compile("^-?[a-zA-Z0-9]+$")
 			testing = soup.find_all(data_val)
 			nodes = soup.find_all(attrs={"data-tweet-id": data_val})
@@ -189,16 +184,12 @@ for node in timeline_data_nodes:
 			testing_nodes = []
 
 			for test in testing:
-				data2 = simplejson.dumps(test.attrs)
-				data2 = simplejson.loads(data2)
-				for key, value in data2.iteritems():
+				for key, value in test.attrs.iteritems():
 					if 'data-expanded-url' in key and value not in testing_nodes:
 						testing_nodes.append(value)
 
 			for timestamp in unfiltered_timestamps:
-				data2 = simplejson.dumps(timestamp.attrs)
-				data2 = simplejson.loads(data2)
-				for key, value in data2.iteritems():
+				for key, value in timestamp.attrs.iteritems():
 					if key == 'data-time':
 						timestamps.append(value)
 			
@@ -214,17 +205,14 @@ for node in timeline_data_nodes:
 				if len(urls_to_crawl) > 2:
 					nodes_tweets.append(urls_to_crawl.lstrip())
 
+			#will the below loops produce the same length lists and not filter out people who tweet twice on topic in short?
 			for node in nodes:
-				data2 = simplejson.dumps(node.attrs)
-				data2 = simplejson.loads(data2)
-				for key, value in data2.iteritems():
+				for key, value in node.attrs.iteritems():
 					if key == 'data-tweet-id' and value not in tweet_id_in_order:
 						tweet_id_in_order.append(value)
 
 			for node in nodes:
-				data2 = simplejson.dumps(node.attrs)
-				data2 = simplejson.loads(data2)
-				for key, value in data2.iteritems():
+				for key, value in node.attrs.iteritems():
 					if key == 'data-user-id' and value not in userid_nodes:
 						userid_nodes.append(value)
 
