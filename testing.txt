@@ -1,9 +1,0 @@
-[u'$55,000', u'$4,555', u'57', u'5']
-Duration for crowdfund data mining of  startsomegood : 0.120481014252 
-
-[u'$10,000', u'$3,235', 62, u'5']
-Duration for crowdfund data mining of  indiegogo : 0.187969923019 
-
-['\xc2\xa330,000', '\xc2\xa324,494', u'406', u'11']
-Duration for crowdfund data mining of  kickstarter : 0.338934898376 
-
