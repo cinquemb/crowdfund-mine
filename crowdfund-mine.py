@@ -54,6 +54,8 @@ def check_crowd_fund_url(urls):
 	'''
 	c_c_f_u_list = [] 
 	for url in urls:
+		if url_check(url, '//blog'):
+			continue
 		if url not in check_url_list:
 			if len(url) > 5:
 				url_orig = url
@@ -62,7 +64,7 @@ def check_crowd_fund_url(urls):
 					url_temp = re.split('/posts/', url)
 					print 'Url Hack Used'
 					url = url_temp[0]
-				r = requests.get(url, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=20, verify=False)
+				r = requests.get(url, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=30, verify=False)
 				scrape_time = time.time()
 				sleep(.35)
 				data = r.text
@@ -88,6 +90,7 @@ def check_crowd_fund_url(urls):
 						c_c_f_u_node.append(temp_match_list)
 						check_url_list.append(url_orig)
 						cache_temp_list.append(temp_match_list)
+						print 'Cache Used'
 					
 					c_c_f_u_list.append(c_c_f_u_node)
 				else:
@@ -215,7 +218,7 @@ def parse_crowdfund_site(tweet_node):
 	_urls = re.split(',', json_data['urls'])
 	checked_data = check_crowd_fund_url(_urls)
 	for node in checked_data:
-		print len(node[0])
+		#print len(node[0])
 		#pprint.pprint(node[0])
 		if node[0][2] is True:
 			if node[0][1] == 'startsomegood':
@@ -244,16 +247,17 @@ def save_crowdfund_data(p_c_s_d):
 	
 	d_nodes = []
 	for p_node in p_c_s_d:
-		temp_node_dict =  {'goal_amount': p_node[1][0], 
-			'raised_amount': p_node[1][1], 
-			'total_backers': p_node[1][2], 
-			'days_or_hours_left': int(p_node[1][3]), 
-			'time_parsed': float(p_node[2])
-		} 
+		if len(p_node[1]) == 4:
+			temp_node_dict =  {'goal_amount': p_node[1][0], 
+				'raised_amount': p_node[1][1], 
+				'total_backers': p_node[1][2], 
+				'days_or_hours_left': int(p_node[1][3]), 
+				'time_parsed': float(p_node[2])
+			} 
 
-		temp_node_sum = p_node[0].copy()
-		temp_node_sum.update(temp_node_dict)
-		d_nodes.append(simplejson.dumps(temp_node_sum))
+			temp_node_sum = p_node[0].copy()
+			temp_node_sum.update(temp_node_dict)
+			d_nodes.append(simplejson.dumps(temp_node_sum))
 
 	
 	for node in d_nodes:
