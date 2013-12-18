@@ -199,7 +199,7 @@ for node in timeline_data_nodes:
 						else:
 							urls_to_crawl += '%s,' % (url['href'])
 				else:
-					urls_to_crawl +='False'
+					continue
 
 				urls_to_crawl = urls_to_crawl.lstrip()
 
