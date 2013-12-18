@@ -184,12 +184,7 @@ for node in timeline_data_nodes:
 
 			tweets = soup.select('li.js-stream-item.stream-item.stream-item.expanding-stream-item')
 			for tweet in tweets:
-				tweet_id = tweet['data-item-id']
-				user_id_l = tweet.select('div.tweet.original-tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.js-original-tweet')
-
-				user_id = user_id_l[0]['data-user-id']
-				time_l = tweet.select('span._timestamp.js-short-timestamp.js-relative-timestamp')
-				timestamp = time_l[0]['data-time']
+				
 				url_s = tweet.select('p.js-tweet-text.tweet-text > a.twitter-timeline-link')
 				urls_to_crawl = ''
 				if url_s:
@@ -202,7 +197,12 @@ for node in timeline_data_nodes:
 					continue
 
 				urls_to_crawl = urls_to_crawl.lstrip()
+				tweet_id = tweet['data-item-id']
+				user_id_l = tweet.select('div.tweet.original-tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.js-original-tweet')
 
+				user_id = user_id_l[0]['data-user-id']
+				time_l = tweet.select('span._timestamp.js-short-timestamp.js-relative-timestamp')
+				timestamp = time_l[0]['data-time']
 				nodes_tweets.append(urls_to_crawl)
 				tweet_id_in_order.append(tweet_id)
 				userid_nodes.append(user_id)
