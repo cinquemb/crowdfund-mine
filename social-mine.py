@@ -186,19 +186,18 @@ for node in timeline_data_nodes:
 			for tweet in tweets:
 				tweet_id = tweet['data-item-id']
 				user_id_l = tweet.select('div.tweet.original-tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.js-original-tweet')
-				for user_id_ in user_id_l:
-					user_id = user_id_['data-user-id']
-					break
-				time_l = tweet.select('span._timestamp.js-short-timestamp.js-relative-timestamp')
-				for time_ in time_l:
-					timestamp = time_['data-time']
-					break
 
+				user_id = user_id_l[0]['data-user-id']
+				time_l = tweet.select('span._timestamp.js-short-timestamp.js-relative-timestamp')
+				timestamp = time_l[0]['data-time']
 				url_s = tweet.select('p.js-tweet-text.tweet-text > a.twitter-timeline-link')
 				urls_to_crawl = ''
 				if url_s:
 					for url in url_s:
-						urls_to_crawl += '%s,' % (url['data-expanded-url'])
+						if 'data-expanded-url' in url.attrs:
+							urls_to_crawl += '%s,' % (url['data-expanded-url'])
+						else:
+							urls_to_crawl += '%s,' % (url['href'])
 				else:
 					urls_to_crawl +='False'
 
@@ -208,7 +207,7 @@ for node in timeline_data_nodes:
 				tweet_id_in_order.append(tweet_id)
 				userid_nodes.append(user_id)
 				timestamps.append(timestamp)
-				
+
 			tweet_ziped = zip(userid_nodes, timestamps, tweet_id_in_order, nodes_tweets)
 			ids = save_filter_dict(tweet_ziped, source)
 f.close()
