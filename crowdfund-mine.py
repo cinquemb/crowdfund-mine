@@ -68,16 +68,11 @@ def check_crowd_fund_url(urls):
 				scrape_time = time.time()
 				sleep(.35)
 				data = r.text
-				soup = BeautifulSoup(data)
-				goal =  soup.find_all('meta',attrs={"property": "og:site_name"})
-				_title_row = []
-				for go in goal:
-					#print go['content']
-					_title_row.append(go['content'].encode("utf-8").lower())
-					break
+				soup = BeautifulSoup(data, "lxml")
+				_title =  soup.find('meta',attrs={"property": "og:site_name"})
 
-				if len(_title_row) > 0:
-					_title = _title_row[0]
+				if _title:
+					_title = _title.encode("utf-8").lower()
 					matches = [site for site in crowdsource_site_list if crowd_fund_comparison(_title, site)]
 
 					if matches:

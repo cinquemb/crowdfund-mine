@@ -81,8 +81,9 @@ def general_print_dict(itr_dict, category):
 	for key, value in itr_dict.iteritems():
 		#data-user-id
 		if key == 'htmlUsers':
-			soup = BeautifulSoup(value)
-			data_val = re.compile("^-?[a-zA-Z0-9]+$")
+			soup = BeautifulSoup(value, "lxml")
+			#hackish to detect if there are favorites but hidden users
+			data_val = re.compile("^[a-zA-Z0-9]+$")
 			nodes = soup.find_all(data_val)
 			userid_nodes = []
 			for node in nodes:
@@ -91,17 +92,23 @@ def general_print_dict(itr_dict, category):
 						#temp_node =  '               {"user": %s}\n' % (value)
 						userid_nodes.append(value)
 						#f.write(temp_node)
-			for i in range(0,len(userid_nodes)):
-				if i == len(userid_nodes)-1:
-					temp_node =  '        {"user": %s}\n      ]\n     }\n' % (userid_nodes[i])
-					f.write(temp_node)
-				else:
-					temp_node =  '        {"user": %s},\n' % (userid_nodes[i])
-					f.write(temp_node)
+
+			#hackish to detect if there are favorites but hidden users
+			if len(userid_nodes) == 0:
+				temp_node =  '        {"user": "Hidden"}\n      ]\n     }\n'
+				f.write(temp_node)
+			else:
+				for i in range(0,len(userid_nodes)):
+					if i == len(userid_nodes)-1:
+						temp_node =  '        {"user": %s}\n      ]\n     }\n' % (userid_nodes[i])
+						f.write(temp_node)
+					else:
+						temp_node =  '        {"user": %s},\n' % (userid_nodes[i])
+						f.write(temp_node)
 
 
 def overall_print_dict(html):
-	soup = BeautifulSoup(html)
+	soup = BeautifulSoup(html, "lxml")
 	node = soup.find("ul", "stats")
 
 	temp_str_node = ''
@@ -173,7 +180,7 @@ for node in timeline_data_nodes:
 		if key == 'items_html':
 			value1 = value.replace('&lt;', '<')
 			value2 = '<html>%s</html>' % (value1.replace('&gt;','>').encode("utf-8"))
-			soup = BeautifulSoup(value2)
+			soup = BeautifulSoup(value2, "lxml")
 			#print soup
 			#data_val = re.compile("^-?[a-zA-Z0-9]+$")
 			#testing = soup.find_all(data_val)
