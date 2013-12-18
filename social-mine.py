@@ -169,56 +169,48 @@ for node in timeline_data_nodes:
 	data1 = simplejson.loads(dump)
 	for key, value in data1.iteritems():
 		#metadata in tweet stream
+		#zipped list is probably not accurate, need to fix
 		if key == 'items_html':
-			soup = BeautifulSoup(value)
-			data_val = re.compile("^-?[a-zA-Z0-9]+$")
-			testing = soup.find_all(data_val)
-			nodes = soup.find_all(attrs={"data-tweet-id": data_val})
-			unfiltered_userid_nodes = soup.find_all(attrs={"data-user-id": data_val})
-			unfiltered_nodes_tweets = soup.find_all(attrs={"class":"js-tweet-text tweet-text"})
-			unfiltered_timestamps = soup.find_all(attrs={"data-time": data_val})
+			value1 = value.replace('&lt;', '<')
+			value2 = '<html>%s</html>' % (value1.replace('&gt;','>').encode("utf-8"))
+			soup = BeautifulSoup(value2)
+			#print soup
+			#data_val = re.compile("^-?[a-zA-Z0-9]+$")
+			#testing = soup.find_all(data_val)
 			nodes_tweets = []
 			tweet_id_in_order = []
 			userid_nodes = []
 			timestamps = []
-			testing_nodes = []
 
-			for test in testing:
-				for key, value in test.attrs.iteritems():
-					if 'data-expanded-url' in key and value not in testing_nodes:
-						testing_nodes.append(value)
+			tweets = soup.select('li.js-stream-item.stream-item.stream-item.expanding-stream-item')
+			for tweet in tweets:
+				tweet_id = tweet['data-item-id']
+				user_id_l = tweet.select('div.tweet.original-tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.js-original-tweet')
+				for user_id_ in user_id_l:
+					user_id = user_id_['data-user-id']
+					break
+				time_l = tweet.select('span._timestamp.js-short-timestamp.js-relative-timestamp')
+				for time_ in time_l:
+					timestamp = time_['data-time']
+					break
 
-			for timestamp in unfiltered_timestamps:
-				for key, value in timestamp.attrs.iteritems():
-					if key == 'data-time':
-						timestamps.append(value)
-			
-			for tweet in unfiltered_nodes_tweets:
+				url_s = tweet.select('p.js-tweet-text.tweet-text > a.twitter-timeline-link')
 				urls_to_crawl = ''
-				unfilt_tweet = tweet.get_text()
-				urls_list = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', unfilt_tweet)
+				if url_s:
+					for url in url_s:
+						urls_to_crawl += '%s,' % (url['data-expanded-url'])
+				else:
+					urls_to_crawl +='False'
 
-				for url in urls_list:
-					matches = [t_url for t_url in testing_nodes if url_comparison(t_url, url)]
-					urls_to_crawl += '%s,' % (matches[0])
+				urls_to_crawl = urls_to_crawl.lstrip()
+
+				nodes_tweets.append(urls_to_crawl)
+				tweet_id_in_order.append(tweet_id)
+				userid_nodes.append(user_id)
+				timestamps.append(timestamp)
 				
-				if len(urls_to_crawl) > 2:
-					nodes_tweets.append(urls_to_crawl.lstrip())
-
-			#will the below loops produce the same length lists and not filter out people who tweet twice on topic in short?
-			for node in nodes:
-				for key, value in node.attrs.iteritems():
-					if key == 'data-tweet-id' and value not in tweet_id_in_order:
-						tweet_id_in_order.append(value)
-
-			for node in nodes:
-				for key, value in node.attrs.iteritems():
-					if key == 'data-user-id' and value not in userid_nodes:
-						userid_nodes.append(value)
-
 			tweet_ziped = zip(userid_nodes, timestamps, tweet_id_in_order, nodes_tweets)
 			ids = save_filter_dict(tweet_ziped, source)
-			#pprint.pprint(ids)
 f.close()
 
 end = time.time()
