@@ -40,7 +40,7 @@ def url_comparison(full_url,truncated_url):
 def get_retweet_data(tweet_id):
 	val = 'https://twitter.com/i/activity/retweeted_popup?id=%s' % (tweet_id)
 	r = requests.get(val, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
-	sleep(.35)
+	sleep(.25)
 	data = r.text
 	data1 = simplejson.loads(data)
 	general_print_dict(data1,'{"retweet')
@@ -48,7 +48,7 @@ def get_retweet_data(tweet_id):
 def get_favorite_data(tweet_id):
 	val = 'https://twitter.com/i/activity/favorited_popup?id=%s' % (tweet_id)
 	r = requests.get(val, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
-	sleep(.35)
+	sleep(.25)
 	data = r.text
 	data1 = simplejson.loads(data)
 	general_print_dict(data1, '{"favorite')
@@ -57,7 +57,7 @@ def get_tweet_data(tweet_id):
 	#may need to edit since unless part of url isnt used in query
 	val = 'https://twitter.com/i/status/%s' % (tweet_id)
 	r = requests.get(val, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
-	sleep(.35)
+	sleep(.25)
 	data = r.text
 	check = overall_print_dict(data)
 
@@ -217,6 +217,7 @@ for node in timeline_data_nodes:
 
 			tweet_ziped = zip(userid_nodes, timestamps, tweet_id_in_order, nodes_tweets)
 			ids = save_filter_dict(tweet_ziped, source)
+			break
 f.close()
 
 end = time.time()

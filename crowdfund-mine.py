@@ -39,28 +39,19 @@ def crowd_fund_comparison(title,site):
 	else:
 		return False
 
-#super hacky
-def url_check(url,string):
-	if url.find(string) is not -1:
-		return True
-	else:
-		return False
-
-
-
 def check_crowd_fund_url(urls):
 	'''
 		Follow urls from within tweet and return url and site and status (if url is for crowdfunding) for each url 
 	'''
 	c_c_f_u_list = [] 
 	for url in urls:
-		if url_check(url, '//blog'):
+		if '//blog' in url:
 			continue
 		if url not in check_url_list:
 			if len(url) > 5:
 				url_orig = url
 				c_c_f_u_node = [] #0:soup,1:site,2:status(true or false),3:time
-				if url_check(url, '/posts/') and url_check(url, 'kickstarter'):
+				if '/posts/' in url and 'kickstarter' in url:
 					url_temp = re.split('/posts/', url)
 					print 'Url Hack Used'
 					url = url_temp[0]
@@ -93,7 +84,7 @@ def check_crowd_fund_url(urls):
 		else:
 			url_cached = [i for i,x in enumerate(check_url_list) if x == url]
 			#print 'Get Cached Data for Url At Index:', url_cached[0]
-			c_c_f_u_list.append([cache_temp_list[url_cached[0]]])
+			c_c_f_u_list.append([c_c_f_u_node[url_cached[0]]])
 	return c_c_f_u_list
 
 def parse_startsomegood(html_soup):
@@ -253,7 +244,6 @@ def save_crowdfund_data(p_c_s_d):
 			temp_node_sum = p_node[0].copy()
 			temp_node_sum.update(temp_node_dict)
 			d_nodes.append(simplejson.dumps(temp_node_sum))
-
 	
 	for node in d_nodes:
 		f_m.write('%s,' % node)	
