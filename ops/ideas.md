@@ -38,3 +38,8 @@
 maybe preprocess to filter out scraped time stamps and time left in order to see difference in funding amounts and backers
 comm <(sort fund_mined_data/1387307355.86.json) <(sort fund_mined_data/1387314130.91.json)
 
+# ML/Sentement alyisis on tween content #
+
+Use an [API](https://app.viralheat.com/developer/sentiment) or use techniques from [here](http://camdavidsonpilon.github.io/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/) from mashape that is free? Include tweet content in json data from social-mine.py? 
+
+

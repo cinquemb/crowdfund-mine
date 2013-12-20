@@ -11,6 +11,7 @@ import pprint
 import codecs
 import re
 from bs4 import BeautifulSoup
+import urllib
 
 init = time.time()
 requests.adapters.DEFAULT_RETRIES = 10
@@ -144,10 +145,10 @@ def overall_print_dict(html):
 
 def save_filter_dict(itr_zip, csl):
 	twitter_ids = []
-	for user, timestamps, tweet_id, tweet in itr_zip:
+	for user, timestamps, tweet_id, tweet, tweet_content in itr_zip:
 		# only track values that have links in them
 		if 'http' in tweet:
-			temp_node_pre =  '{"query": "%s", "user": %s, "time_created": %s, "tweet_id": %s, "urls": "%s", "data": [' % (csl, user, timestamps, tweet_id, tweet)
+			temp_node_pre =  '{"query": "%s", "user": %s, "time_created": %s, "tweet_id": %s, "tweet_content_urlencoded": "%s", "urls": "%s", "data": [' % (csl, user, timestamps, tweet_id, tweet_content, tweet)
 			temp_node = temp_node_pre.replace('\n', '')
 			temp_node = '%s\n' % (temp_node)
 			#n_s = temp_node.encode('ascii', 'ignore')
@@ -188,6 +189,7 @@ for node in timeline_data_nodes:
 			tweet_id_in_order = []
 			userid_nodes = []
 			timestamps = []
+			tweet_content = []
 
 			tweets = soup.select('li.js-stream-item.stream-item.stream-item.expanding-stream-item')
 			for tweet in tweets:
@@ -203,6 +205,8 @@ for node in timeline_data_nodes:
 				else:
 					continue
 
+				tweet_text = tweet.find('p', class_="js-tweet-text tweet-text").get_text().encode('ascii', 'ignore')
+				tweet_text_filtered = urllib.quote_plus(tweet_text)
 				urls_to_crawl = urls_to_crawl.lstrip()
 				tweet_id = tweet['data-item-id']
 				user_id_l = tweet.select('div.tweet.original-tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.js-original-tweet')
@@ -214,8 +218,9 @@ for node in timeline_data_nodes:
 				tweet_id_in_order.append(tweet_id)
 				userid_nodes.append(user_id)
 				timestamps.append(timestamp)
+				tweet_content.append(tweet_text_filtered)
 
-			tweet_ziped = zip(userid_nodes, timestamps, tweet_id_in_order, nodes_tweets)
+			tweet_ziped = zip(userid_nodes, timestamps, tweet_id_in_order, nodes_tweets, tweet_content)
 			ids = save_filter_dict(tweet_ziped, source)
 			break
 f.close()
