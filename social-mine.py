@@ -19,9 +19,7 @@ requests.adapters.DEFAULT_RETRIES = 10
 _tmp_file = '%s.json' % (init)
 MINED_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mined_data'))
 mined_data_string = '%s/%s' % (MINED_DATA_DIR,_tmp_file)
-#mined_data_string = '%s/%s' % (MINED_DATA_DIR,'temp.json')
 f = open(mined_data_string,"w+")
-#print mined_data_string
 
 crowdsource_site_list = ['startsomegood', 'indiegogo', 'kickstarter']
 
@@ -55,7 +53,6 @@ def get_favorite_data(tweet_id):
 	general_print_dict(data1, '{"favorite')
 
 def get_tweet_data(tweet_id):
-	#may need to edit since unless part of url isnt used in query
 	val = 'https://twitter.com/i/status/%s' % (tweet_id)
 	r = requests.get(val, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
 	sleep(.25)
@@ -80,21 +77,17 @@ def get_tweet_data(tweet_id):
 def general_print_dict(itr_dict, category):
 	f.write('\n     %s-metadata": [\n' % (category))
 	for key, value in itr_dict.iteritems():
-		#data-user-id
 		if key == 'htmlUsers':
 			soup = BeautifulSoup(value, "lxml")
-			#hackish to detect if there are favorites but hidden users
 			data_val = re.compile("^[a-zA-Z0-9]+$")
 			nodes = soup.find_all(data_val)
 			userid_nodes = []
 			for node in nodes:
 				for key, value in node.attrs.iteritems():
 					if key == 'data-user-id' and value not in userid_nodes:
-						#temp_node =  '               {"user": %s}\n' % (value)
 						userid_nodes.append(value)
-						#f.write(temp_node)
 
-			#hackish to detect if there are favorites but hidden users
+			#hackish to detect if there are Retweets/favorites but hidden users
 			if len(userid_nodes) == 0:
 				temp_node =  '        {"user": "Hidden"}\n      ]\n     }\n'
 				f.write(temp_node)
@@ -111,7 +104,6 @@ def general_print_dict(itr_dict, category):
 def overall_print_dict(html):
 	soup = BeautifulSoup(html, "lxml")
 	node = soup.find("ul", "stats")
-
 	temp_str_node = ''
 	temp_node_pre_r = ''
 	temp_node_pre_f = ''
@@ -151,18 +143,14 @@ def save_filter_dict(itr_zip, csl):
 			temp_node_pre =  '{"query": "%s", "user": %s, "time_created": %s, "tweet_id": %s, "tweet_content_urlencoded": "%s", "urls": "%s", "data": [' % (csl, user, timestamps, tweet_id, tweet_content, tweet)
 			temp_node = temp_node_pre.replace('\n', '')
 			temp_node = '%s\n' % (temp_node)
-			#n_s = temp_node.encode('ascii', 'ignore')
 			f.write(temp_node.encode("utf-8"))
 			twitter_ids.append(tweet_id)
-			#f.write('       More Tweet Data\n')
 			get_tweet_data(tweet_id)
 
 	return twitter_ids
 
-
 timeline_data_nodes = []
 for c_s_l in crowdsource_site_list:
-	# abstract into timeline function
 	val = 'https://twitter.com/i/search/timeline?q=%s&composed_count=1&include_available_features=1&include_entities=1&include_new_items_bar=true&interval=1&f=realtime' % (c_s_l)
 	r = requests.get(val, stream=False, headers={'User-Agent':'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'}, timeout=10, verify=False)
 	sleep(.35)
@@ -177,14 +165,10 @@ for node in timeline_data_nodes:
 	data1 = simplejson.loads(dump)
 	for key, value in data1.iteritems():
 		#metadata in tweet stream
-		#zipped list is probably not accurate, need to fix
 		if key == 'items_html':
 			value1 = value.replace('&lt;', '<')
 			value2 = '<html>%s</html>' % (value1.replace('&gt;','>').encode("utf-8"))
 			soup = BeautifulSoup(value2, "lxml")
-			#print soup
-			#data_val = re.compile("^-?[a-zA-Z0-9]+$")
-			#testing = soup.find_all(data_val)
 			nodes_tweets = []
 			tweet_id_in_order = []
 			userid_nodes = []
