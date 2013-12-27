@@ -84,7 +84,7 @@ def check_crowd_fund_url(urls):
 		else:
 			url_cached = [i for i,x in enumerate(check_url_list) if x == url]
 			#print 'Get Cached Data for Url At Index:', url_cached[0]
-			c_c_f_u_list.append([c_c_f_u_node[url_cached[0]]])
+			c_c_f_u_list.append([cache_temp_list[url_cached[0]]])
 	return c_c_f_u_list
 
 def parse_startsomegood(html_soup):
