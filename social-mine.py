@@ -197,7 +197,11 @@ for node in timeline_data_nodes:
 
 				user_id = user_id_l[0]['data-user-id']
 				time_l = tweet.select('span._timestamp.js-short-timestamp.js-relative-timestamp')
+				if len(time_l) == 0:
+					time_l = tweet.select('span._timestamp.js-short-timestamp')
+				
 				timestamp = time_l[0]['data-time']
+
 				nodes_tweets.append(urls_to_crawl)
 				tweet_id_in_order.append(tweet_id)
 				userid_nodes.append(user_id)
