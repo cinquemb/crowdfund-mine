@@ -21,7 +21,7 @@ MINED_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mined_
 mined_data_string = '%s/%s' % (MINED_DATA_DIR,_tmp_file)
 f = open(mined_data_string,"w+")
 
-crowdsource_site_list = ['startsomegood', 'indiegogo', 'kickstarter']
+crowdsource_site_list = ['teb']#['startsomegood', 'indiegogo', 'kickstarter']
 
 def is_number(s):
     try:
@@ -189,7 +189,12 @@ for node in timeline_data_nodes:
 				else:
 					continue
 
-				tweet_text = tweet.find('p', class_="js-tweet-text tweet-text").get_text().encode('ascii', 'ignore')
+				check_tweet_text = tweet.find('p', class_="js-tweet-text tweet-text")
+				if check_tweet_text is not None:
+					tweet_text = tweet.find('p', class_="js-tweet-text tweet-text").get_text().encode('ascii', 'ignore')
+				else:
+					tweet_text = ''
+					
 				tweet_text_filtered = urllib.quote_plus(tweet_text)
 				urls_to_crawl = urls_to_crawl.lstrip()
 				tweet_id = tweet['data-item-id']
